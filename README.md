@@ -4,9 +4,26 @@ A proof-of-concept library and web app for safe multi-user LLM chats using tool-
 
 ## Demo
 
-<video src="media/promptscope-demo.mov" width="100%" controls>
-  Your browser does not support the video tag. <a href="media/promptscope-demo.mov">Download the demo video</a>.
-</video>
+> **📹 [Watch the demo video](https://github.com/ilya-kolchinsky/PromptScope/raw/main/media/promptscope-demo.mov)** — Download and watch to see naïve vs protected mode in action
+
+**What the demo shows:**
+- **Naïve mode**: Alice's "pirate" instruction automatically affects Bob's response  
+- **Protected mode**: Bob gets clean responses; Alice's message is behind retrieval tools
+- **Debug panels**: See exactly what context is sent to the model
+- **Tool calling**: Watch the model retrieve messages when needed
+
+<details>
+<summary><b>💡 Want the video to preview inline on GitHub?</b></summary>
+
+GitHub supports native video preview if you upload via their interface:
+
+1. Create a new issue in this repo (you can close it after)
+2. Drag and drop `media/promptscope-demo.mov` into the comment box
+3. GitHub uploads it and generates a URL: `https://github.com/user-attachments/assets/...`
+4. Copy that URL and update the README with it
+5. The video will then play inline!
+
+</details>
 
 ## The Problem
 
