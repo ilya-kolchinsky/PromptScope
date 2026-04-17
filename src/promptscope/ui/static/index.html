@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptScope - Safe Multi-User LLM Chats</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 PromptScope</h1>
+            <p class="subtitle">Safe Multi-User LLM Chat Demo</p>
+        </header>
+
+        <!-- Main Chat Area -->
+        <section class="chat-panel">
+            <div id="chat-messages"></div>
+        </section>
+
+        <!-- Post Message Area -->
+        <section class="post-panel">
+            <div class="identity-selector">
+                <label for="current-identity">Post as:</label>
+                <select id="current-identity">
+                    <option value="">Select or type below...</option>
+                </select>
+                <input type="text"
+                       id="custom-identity"
+                       placeholder="Or type new name..."
+                       style="flex: 1; padding: 8px 12px; border: 2px solid #ddd; border-radius: 6px; margin-left: 10px;">
+            </div>
+
+            <div class="message-input-area">
+                <textarea id="message-input"
+                          placeholder="Type your message... (use @assistant to talk to the AI)"
+                          rows="3"></textarea>
+                <button onclick="sendMessage()" class="send-button">Send</button>
+            </div>
+        </section>
+
+        <!-- Protection Mode Toggle -->
+        <section class="protection-panel">
+            <div class="protection-toggle-container">
+                <label class="switch">
+                    <input type="checkbox" id="protected-mode" checked onchange="updateModeDisplay()">
+                    <span class="slider"></span>
+                </label>
+                <span id="mode-label" class="mode-label">PROTECTED MODE</span>
+                <span class="info-icon" title="Protected Mode: Only your own messages are in the assistant's default context. Other users' messages are accessible via tools when needed. Naïve Mode: All messages go directly into context (demonstrates the problem).">ℹ️</span>
+            </div>
+        </section>
+
+        <!-- Full Info Section (collapsible) -->
+        <section class="full-info-section">
+            <div class="full-info-toggle">
+                <label>
+                    <input type="checkbox" id="show-full-info" onchange="toggleFullInfo()">
+                    Show Full Info (Debug)
+                </label>
+            </div>
+
+            <div id="full-info-content" class="full-info-content" style="display: none;">
+                <div class="info-panel">
+                    <h3>Projection Debug View</h3>
+                    <div id="projection-debug"></div>
+                </div>
+
+                <div class="info-panel">
+                    <h3>Prompt Sent to LLM</h3>
+                    <div id="prompt-debug"></div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <button onclick="refreshAll()">🔄 Refresh</button>
+            <button onclick="resetConversation()" class="danger">Reset Conversation</button>
+            <span class="status" id="status"></span>
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
