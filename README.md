@@ -2,6 +2,18 @@
 
 A proof-of-concept library and web app for safe multi-user LLM chats using tool-based context retrieval.
 
+## Demo
+
+<video src="media/promptscope-demo.mov" width="100%" controls>
+  Your browser does not support the video tag. <a href="media/promptscope-demo.mov">Download the demo video</a>.
+</video>
+
+**What the demo shows:**
+- **Naïve mode**: Alice's "pirate" instruction automatically affects Bob's response
+- **Protected mode**: Bob gets clean responses; Alice's message is behind retrieval tools
+- **Debug panels**: See exactly what context is sent to the model
+- **Tool calling**: Watch the model retrieve messages when needed
+
 ## The Problem
 
 In a shared conversation with multiple human users, an LLM cannot inherently tell who is speaking to it, whose instructions it should follow, and which text is merely conversational content versus an instruction that should affect future replies.
