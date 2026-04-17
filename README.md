@@ -304,7 +304,7 @@ OLLAMA_MODEL=llama3
 
 ```bash
 # Verify core logic
-python verify_tools.py
+python scripts/verify_tools.py
 
 # Start server
 python run.py

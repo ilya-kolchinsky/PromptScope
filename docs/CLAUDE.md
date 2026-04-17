@@ -25,7 +25,7 @@ pip install -e ".[all]"  # All providers
 # OR: pip install -e .                # Mock mode only
 
 # Run verification
-python verify_tools.py
+python scripts/verify_tools.py
 
 # Start server (mock mode, no API key needed)
 python run.py
@@ -165,7 +165,7 @@ Access at: http://localhost:8000
 
 ```bash
 # Verify core logic and tools
-python verify_tools.py
+python scripts/verify_tools.py
 
 # Check imports
 python -c "import sys; sys.path.insert(0, 'src'); from promptscope.api.server import app"

@@ -124,7 +124,7 @@ After installation, verify it works:
 
 ```bash
 # Test core functionality
-python verify_tools.py
+python scripts/verify_tools.py
 
 # Start the server
 python run.py

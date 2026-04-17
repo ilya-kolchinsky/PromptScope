@@ -228,7 +228,7 @@ def tool_executor(tool_name, tool_args):
 
 ## Testing
 
-**Verification script** (`verify_tools.py`):
+**Verification script** (`scripts/verify_tools.py`):
 - Loads seed data
 - Tests projection (Bob's control vs observation)
 - Tests each retrieval tool
@@ -253,7 +253,7 @@ PROTECTED MODE:
 - `src/promptscope/core/retrieval_tools.py` - Tool implementations
 - `src/promptscope/core/tool_definitions.py` - Tool schemas
 - `src/promptscope/core/llm_types.py` - Common types
-- `verify_tools.py` - Verification script
+- `scripts/verify_tools.py` - Verification script
 
 **Replaced files:**
 - `src/promptscope/core/llm_client.py` - Multi-provider with tool calling
