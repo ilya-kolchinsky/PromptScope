@@ -62,11 +62,20 @@ Now, if Alice's "pirate" instruction affects Bob's response, it's because:
 - Ollama (local models)
 - Mock (for demos without API)
 
+### Hierarchical Access Control (ACL)
+- **Permission-Based Influence**: Control which users' messages can influence others' LLM responses
+- **Group Management**: Organize users into groups (e.g., "admins") with specific permissions
+- **INFLUENCE Permission**: Users/groups with INFLUENCE permission can affect others' effective control context even in Protected Mode
+- **Extensible Permission System**: Framework supports adding new permission types beyond INFLUENCE
+- **Live Admin Panel**: Web UI for managing group memberships and permissions in real-time
+- See [ACL_GUIDE.md](ACL_GUIDE.md) for detailed documentation
+
 ### Live Demo UI
 - Interactive web interface showing the difference between modes
 - Debug panels showing exact context sent to model
 - Tool call visualization (see which messages the model retrieves)
 - Real-time projection views
+- ACL admin panel for demonstrating hierarchical permissions
 
 ## Quick Start
 
@@ -211,6 +220,18 @@ The application comes pre-loaded with seed data:
 4. Might follow it → now it's classic prompt injection
 5. Check debug panel to see the tool call chain
 
+**Step 5: Hierarchical Permissions (ACL Demo)**
+1. Keep **Bob** selected and **Protected Mode enabled**
+2. In the **Admin Group Management** panel, click **Promote to Admin** next to Alice
+3. Observe: Alice's row turns green with "ADMIN" badge
+4. Ask: "What is 10 + 5?"
+5. Result: Pirate-themed answer! Alice's pirate instruction now affects Bob
+6. Why: Alice is in the "admins" group, which has INFLUENCE permission on all users
+7. Click **Demote** to remove Alice from admins
+8. Ask: "What is 7 + 3?"
+9. Result: Normal answer - Alice's influence is removed
+10. This demonstrates intentional, controlled hierarchical influence
+
 ### Key Observations
 
 ✅ **Protected Mode Benefits**:
@@ -332,19 +353,30 @@ python run.py
 ### Retrieval (Manual)
 - `POST /api/retrieval/search` - Manual search (for UI debugging)
 
+### ACL Management
+- `GET /api/acl/users` - Get all users
+- `GET /api/acl/groups` - Get all groups
+- `POST /api/acl/groups/{group_id}/members/{user_id}` - Add user to group
+- `DELETE /api/acl/groups/{group_id}/members/{user_id}` - Remove user from group
+- `GET /api/acl/influence/{principal}` - Get users who can influence a principal
+
 ### Utility
 - `GET /api/status` - Server status
 - `POST /api/reset` - Reset conversation
 
 ## Important Concepts
 
-**Effective Control Context**: Messages that go directly into the model's context and can automatically influence its behavior. In protected mode, only the principal's own messages.
+**Effective Control Context**: Messages that go directly into the model's context and can automatically influence its behavior. In protected mode, includes the principal's own messages AND messages from users/groups with INFLUENCE permission.
 
-**Visible Observation Context**: Messages that are visible and searchable but don't automatically affect the model. Other users' messages. Accessible via retrieval tools.
+**Visible Observation Context**: Messages that are visible and searchable but don't automatically affect the model. Other users' messages (without INFLUENCE permission). Accessible via retrieval tools.
 
 **Tool-Based Retrieval**: The model can call tools to search and retrieve messages from visible observation context. If it does, and those messages contain malicious instructions, this becomes a classic prompt injection scenario.
 
 **Reduction**: Transforming an unsolved problem (multi-user pollution) into a solved problem (retrieval-based injection) by architectural design.
+
+**INFLUENCE Permission**: An ACL permission that allows a user's or group's messages to appear in another user's effective control context, enabling intentional hierarchical influence (e.g., managers influencing team members, admins setting global policies).
+
+**Hierarchical Access Control**: Permission-based system where organizational structure (users, groups, roles) determines whose messages can influence whose LLM interactions. Implements the principle that some influence is intentional and should be controllable.
 
 ## Limitations & Future Work
 
@@ -352,14 +384,14 @@ This is a **proof-of-concept**. Production systems would need:
 
 - [x] Tool-based retrieval (implemented)
 - [x] Multi-provider LLM support (implemented)
-- [ ] Persistent storage
-- [ ] User authentication
-- [ ] Role-based access control
+- [x] Role-based access control (implemented - see ACL_GUIDE.md)
+- [ ] Persistent storage (currently in-memory)
+- [ ] User authentication (ACL system is ready, needs auth layer)
 - [ ] Input sanitization on retrieved content
-- [ ] Audit logging of tool calls
+- [ ] Audit logging of tool calls and permission changes
 - [ ] Rate limiting
 - [ ] Assistant message tracking
-- [ ] More sophisticated projection policies
+- [ ] More sophisticated projection policies (time-based, topic-scoped permissions)
 
 ## License
 

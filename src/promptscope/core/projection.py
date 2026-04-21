@@ -11,6 +11,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from .conversation import ConversationState, Message
+from .acl.evaluator import ACLEvaluator
 
 
 class ProjectedView(BaseModel):
@@ -29,13 +30,15 @@ class ConversationProjector:
     """
     Projects conversation state into principal-specific views.
 
-    In this prototype, all users are equal. For a given principal P:
+    With ACL support, for a given principal P:
     - Messages authored by P → effective control context
-    - Messages authored by others → visible observation context
+    - Messages from users with INFLUENCE permission on P → effective control context
+    - All other messages → visible observation context
     """
 
-    def __init__(self, conversation_state: ConversationState):
+    def __init__(self, conversation_state: ConversationState, acl_evaluator: Optional[ACLEvaluator] = None):
         self.conversation_state = conversation_state
+        self.acl_evaluator = acl_evaluator
 
     def project_for_principal(self, principal: str) -> ProjectedView:
         """
@@ -64,8 +67,13 @@ class ConversationProjector:
                     # Assistant message for someone else
                     visible_observation.append(msg)
             else:
-                # Other users' messages go to visible observation context
-                visible_observation.append(msg)
+                # Check if this user has INFLUENCE permission on the principal
+                if self.acl_evaluator and self.acl_evaluator.can_influence(msg.author, principal):
+                    # Author has influence permission - goes to effective control
+                    effective_control.append(msg)
+                else:
+                    # Other users' messages go to visible observation context
+                    visible_observation.append(msg)
 
         return ProjectedView(
             principal=principal,

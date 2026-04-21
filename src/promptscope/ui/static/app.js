@@ -2,12 +2,15 @@
 let allMessages = [];
 let protectedMode = true;
 let knownIdentities = new Set(['Alice', 'Bob', 'Charlie']);
+let aclUsers = [];
+let aclGroups = [];
 
 // Initialize app on load
 document.addEventListener('DOMContentLoaded', async () => {
     await loadIdentities();
     await refreshAll();
     updateModeDisplay();
+    await loadACLData();
 
     // Setup enter key to send
     document.getElementById('message-input').addEventListener('keydown', (e) => {
@@ -359,6 +362,7 @@ function displayPromptDebug(promptDebug) {
 // Refresh all data
 async function refreshAll() {
     await loadMessages();
+    await loadACLData();
     if (document.getElementById('show-full-info').checked) {
         await loadProjectionDebug();
     }
@@ -420,4 +424,134 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ACL Management Functions
+
+// Load ACL data
+async function loadACLData() {
+    try {
+        const [usersData, groupsData] = await Promise.all([
+            apiCall('/acl/users'),
+            apiCall('/acl/groups'),
+        ]);
+
+        aclUsers = usersData.users;
+        aclGroups = groupsData.groups;
+
+        renderACLPanel();
+    } catch (error) {
+        console.error('Failed to load ACL data:', error);
+    }
+}
+
+// Render ACL panel
+function renderACLPanel() {
+    const container = document.getElementById('user-admin-status');
+    if (!container) return;
+
+    // Find the admins group
+    const adminsGroup = aclGroups.find(g => g.id === 'admins');
+    const adminMembers = adminsGroup ? adminsGroup.members : [];
+
+    container.innerHTML = '';
+
+    // Render each user
+    aclUsers.forEach(user => {
+        const isAdmin = adminMembers.includes(user.id);
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = `user-admin-item ${isAdmin ? 'is-admin' : ''}`;
+
+        itemDiv.innerHTML = `
+            <div class="user-info">
+                <span class="user-name">${escapeHtml(user.username)}</span>
+                ${isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}
+            </div>
+            <button
+                class="${isAdmin ? 'demote-button' : 'promote-button'}"
+                onclick="${isAdmin ? `demoteUser('${user.id}')` : `promoteUser('${user.id}')`}"
+            >
+                ${isAdmin ? 'Demote' : 'Promote to Admin'}
+            </button>
+        `;
+
+        container.appendChild(itemDiv);
+    });
+}
+
+// Promote user to admin
+async function promoteUser(userId) {
+    try {
+        await apiCall(`/acl/groups/admins/members/${userId}`, 'POST');
+        await loadACLData();
+
+        // Show feedback
+        const user = aclUsers.find(u => u.id === userId);
+        if (user) {
+            showToast(`${user.username} promoted to Admin! Their messages now influence all users in Protected Mode.`);
+        }
+    } catch (error) {
+        console.error('Failed to promote user:', error);
+        alert('Failed to promote user');
+    }
+}
+
+// Demote user from admin
+async function demoteUser(userId) {
+    try {
+        await apiCall(`/acl/groups/admins/members/${userId}`, 'DELETE');
+        await loadACLData();
+
+        // Show feedback
+        const user = aclUsers.find(u => u.id === userId);
+        if (user) {
+            showToast(`${user.username} demoted from Admin. Their messages no longer influence others in Protected Mode.`);
+        }
+    } catch (error) {
+        console.error('Failed to demote user:', error);
+        alert('Failed to demote user');
+    }
+}
+
+// Show toast notification
+function showToast(message) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #667eea;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        font-weight: 500;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+    `;
+    toast.textContent = message;
+
+    // Add animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(toast);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }

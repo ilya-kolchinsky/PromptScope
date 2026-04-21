@@ -9,11 +9,17 @@ import uuid
 from datetime import datetime, timedelta
 
 from ..core.events import EventLog, MessagePosted
+from ..core.acl import User, Group, PermissionGrant, PermissionType
+from ..core.acl.store import UserStore, PermissionStore
 
 
-def load_seed_data(event_log: EventLog) -> None:
+def load_seed_data(
+    event_log: EventLog,
+    user_store: UserStore,
+    permission_store: PermissionStore,
+) -> None:
     """
-    Load demo seed data into the event log.
+    Load demo seed data into the event log and initialize ACL.
 
     This creates a conversation scenario that demonstrates the security issue:
     - Assistant greets and explains @assistant usage (broadcast to all)
@@ -23,9 +29,47 @@ def load_seed_data(event_log: EventLog) -> None:
 
     In naïve mode: Bob's answer will be pirate-themed because Alice's message affects it
     In protected mode: Bob's answer will be normal because Alice's response is not in his context
+
+    ACL Setup:
+    - Creates users: Alice, Bob, Charlie
+    - Creates 'admins' group (initially empty)
+    - Sets up INFLUENCE permission: admins group can influence everyone
     """
     base_time = datetime.utcnow() - timedelta(minutes=15)
 
+    # Initialize users
+    for user_name in DEMO_USERS:
+        user_store.create_user(
+            User(
+                id=user_name,
+                username=user_name,
+                groups=[],
+            )
+        )
+
+    # Create 'admins' group (initially empty)
+    user_store.create_group(
+        Group(
+            id="admins",
+            name="Admins",
+            members=[],
+        )
+    )
+
+    # Grant INFLUENCE permission: admins group can influence all users
+    for user_name in DEMO_USERS:
+        permission_store.grant_permission(
+            PermissionGrant(
+                id=f"admin-influence-{user_name}",
+                permission_type=PermissionType.INFLUENCE,
+                subject="admins",  # The admins group
+                object=user_name,  # Can influence this user
+                granted_by="system",
+                granted_at=datetime.utcnow(),
+            )
+        )
+
+    # Load conversation events
     events = [
         MessagePosted(
             logical_msg_id=str(uuid.uuid4()),

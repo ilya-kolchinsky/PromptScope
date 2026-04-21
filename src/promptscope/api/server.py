@@ -21,6 +21,11 @@ from ..core.prompt_builder import PromptBuilder
 from ..core.retrieval import ConversationRetrieval
 from ..core.retrieval_tools import ConversationTools, SearchFilters
 from ..core.llm_client import create_llm_client, LLMClient
+from ..core.acl import (
+    ACLEvaluator,
+    InMemoryPermissionStore,
+    InMemoryUserStore,
+)
 
 from .models import (
     PostMessageRequest,
@@ -42,14 +47,21 @@ from .seed_data import load_seed_data, get_demo_users
 # Initialize global state
 event_log = EventLog()
 conversation_state = ConversationState(event_log)
-projector = ConversationProjector(conversation_state)
+
+# Initialize ACL system
+permission_store = InMemoryPermissionStore()
+user_store = InMemoryUserStore()
+acl_evaluator = ACLEvaluator(permission_store, user_store)
+
+# Initialize projector with ACL
+projector = ConversationProjector(conversation_state, acl_evaluator)
 prompt_builder = PromptBuilder(conversation_state, projector)
 retrieval = ConversationRetrieval(projector)
 conversation_tools = ConversationTools(event_log, conversation_state, projector)
 llm_client: Optional[LLMClient] = None
 
-# Load seed data
-load_seed_data(event_log)
+# Load seed data (including ACL data)
+load_seed_data(event_log, user_store, permission_store)
 
 
 def get_llm_client() -> LLMClient:
@@ -351,6 +363,81 @@ async def reset_conversation() -> dict:
         event_log.append(event)
 
     return {"status": "reset", "kept_messages": len(seed_events)}
+
+
+# ACL Management Endpoints
+
+@app.get("/api/acl/users")
+async def get_all_users() -> dict:
+    """Get all users."""
+    users = user_store.get_all_users()
+    return {
+        "users": [
+            {
+                "id": u.id,
+                "username": u.username,
+                "groups": u.groups,
+                "manager_id": u.manager_id,
+            }
+            for u in users
+        ]
+    }
+
+
+@app.get("/api/acl/groups")
+async def get_all_groups() -> dict:
+    """Get all groups."""
+    groups = user_store.get_all_groups()
+    return {
+        "groups": [
+            {
+                "id": g.id,
+                "name": g.name,
+                "members": g.members,
+            }
+            for g in groups
+        ]
+    }
+
+
+@app.post("/api/acl/groups/{group_id}/members/{user_id}")
+async def add_user_to_group(group_id: str, user_id: str) -> dict:
+    """Add a user to a group."""
+    success = user_store.add_user_to_group(user_id, group_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User or group not found")
+
+    return {
+        "status": "success",
+        "user_id": user_id,
+        "group_id": group_id,
+        "action": "added",
+    }
+
+
+@app.delete("/api/acl/groups/{group_id}/members/{user_id}")
+async def remove_user_from_group(group_id: str, user_id: str) -> dict:
+    """Remove a user from a group."""
+    success = user_store.remove_user_from_group(user_id, group_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User or group not found")
+
+    return {
+        "status": "success",
+        "user_id": user_id,
+        "group_id": group_id,
+        "action": "removed",
+    }
+
+
+@app.get("/api/acl/influence/{principal}")
+async def get_influence_set(principal: str) -> dict:
+    """Get all users who can influence this principal."""
+    influencers = acl_evaluator.get_influence_set(principal)
+    return {
+        "principal": principal,
+        "influencers": list(influencers),
+    }
 
 
 # Serve static files
