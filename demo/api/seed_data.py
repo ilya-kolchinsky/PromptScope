@@ -8,9 +8,9 @@ the difference between naïve and protected modes.
 import uuid
 from datetime import datetime, timedelta
 
-from ..core.events import EventLog, MessagePosted
-from ..core.acl import User, Group, PermissionGrant, PermissionType
-from ..core.acl.store import UserStore, PermissionStore
+from promptscope.core.events import EventLog, MessagePosted
+from promptscope.core.acl import User, Group, PermissionGrant, PermissionType
+from promptscope.core.acl.store import UserStore, PermissionStore
 
 
 def load_seed_data(

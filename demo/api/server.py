@@ -14,14 +14,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from ..core.events import EventLog, MessagePosted, MessageEdited, MessageDeleted
-from ..core.conversation import ConversationState, Message
-from ..core.projection import ConversationProjector
-from ..core.prompt_builder import PromptBuilder
-from ..core.retrieval import ConversationRetrieval
-from ..core.retrieval_tools import ConversationTools, SearchFilters
-from ..core.llm_client import create_llm_client, LLMClient
-from ..core.acl import (
+from promptscope.core.events import EventLog, MessagePosted, MessageEdited, MessageDeleted
+from promptscope.core.conversation import ConversationState, Message
+from promptscope.core.projection import ConversationProjector
+from promptscope.core.prompt_builder import PromptBuilder
+from promptscope.core.retrieval import ConversationRetrieval
+from promptscope.core.retrieval_tools import ConversationTools, SearchFilters
+from promptscope.core.llm_client import create_llm_client, LLMClient
+from promptscope.core.acl import (
     ACLEvaluator,
     InMemoryPermissionStore,
     InMemoryUserStore,

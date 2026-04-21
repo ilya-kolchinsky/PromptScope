@@ -109,12 +109,12 @@ cp .env.example .env
 # Edit .env to configure LLM provider
 ```
 
-### Running the Application
+### Running the Demo Application
 
 **Mock Mode (Default - No API Key Required):**
 ```bash
 # No extra dependencies needed for mock mode
-python run.py
+python demo/run.py
 ```
 
 **With Real LLM (Anthropic):**
@@ -124,7 +124,7 @@ python run.py
 # LLM_PROVIDER=anthropic
 # ANTHROPIC_API_KEY=your_api_key_here
 
-python run.py
+python demo/run.py
 ```
 
 **With OpenAI:**
@@ -134,7 +134,7 @@ python run.py
 # LLM_PROVIDER=openai
 # OPENAI_API_KEY=your_api_key_here
 
-python run.py
+python demo/run.py
 ```
 
 Then open your browser to: **http://localhost:8000**
@@ -268,38 +268,45 @@ Principal Projector
 ### Core Components
 
 ```
-src/promptscope/
-├── core/
-│   ├── events.py             # Event log system
-│   ├── conversation.py       # State projection
-│   ├── projection.py         # Principal-specific views
-│   ├── prompt_builder.py     # Request construction
-│   ├── retrieval_tools.py    # Tool implementations
-│   ├── tool_definitions.py   # Tool schemas
-│   ├── llm_client.py         # Multi-provider LLM client
-│   └── llm_types.py          # Common types
-├── api/
-│   ├── server.py             # FastAPI backend
-│   ├── models.py             # Request/response schemas
-│   └── seed_data.py          # Demo data
-└── ui/
-    └── static/
-        ├── index.html        # Web interface
-        ├── style.css         # Styling
-        └── app.js            # Frontend logic
+PromptScope/
+├── src/promptscope/          # Core library
+│   └── core/
+│       ├── events.py             # Event log system
+│       ├── conversation.py       # State projection
+│       ├── projection.py         # Principal-specific views
+│       ├── prompt_builder.py     # Request construction
+│       ├── retrieval_tools.py    # Tool implementations
+│       ├── tool_definitions.py   # Tool schemas
+│       ├── llm_client.py         # Multi-provider LLM client
+│       ├── llm_types.py          # Common types
+│       └── acl/                  # Access control system
+│           ├── models.py         # User, Group, PermissionGrant
+│           ├── store.py          # Storage interfaces
+│           └── evaluator.py     # Permission evaluation
+└── demo/                     # Demo application
+    ├── run.py                # Demo server entry point
+    ├── api/
+    │   ├── server.py         # FastAPI backend
+    │   ├── models.py         # Request/response schemas
+    │   └── seed_data.py      # Demo data
+    └── ui/
+        └── static/
+            ├── index.html    # Web interface
+            ├── style.css     # Styling
+            └── app.js        # Frontend logic
 ```
 
 ### Key File Locations
 
-| Component | File | Key Lines |
-|-----------|------|-----------|
-| Principal check | `projection.py` | 56: `if msg.author == principal` |
-| Context separation | `projection.py` | 52-61 |
-| Tool definitions | `tool_definitions.py` | 15-74 |
-| Tool implementation | `retrieval_tools.py` | 77-287 |
-| Protected request | `prompt_builder.py` | 75-120 |
-| Tool executor | `server.py` | 227-265 |
-| Tool calling loop | `llm_client.py` | 45-104 |
+| Component | File | Description |
+|-----------|------|-------------|
+| Principal projection | `src/promptscope/core/projection.py` | Separates effective control from visible observation context |
+| ACL evaluation | `src/promptscope/core/acl/evaluator.py` | Permission-based influence control |
+| Event log | `src/promptscope/core/events.py` | Append-only conversation events |
+| Tool definitions | `src/promptscope/core/tool_definitions.py` | Retrieval tool schemas |
+| Tool implementation | `src/promptscope/core/retrieval_tools.py` | Search and context expansion |
+| Demo API | `demo/api/server.py` | FastAPI backend with endpoints |
+| Demo UI | `demo/ui/static/` | Web interface assets |
 
 ## Configuration
 

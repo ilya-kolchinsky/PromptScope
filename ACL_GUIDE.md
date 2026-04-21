@@ -762,4 +762,4 @@ acl_evaluator = ACLEvaluator(permission_store, user_store)
 
 ---
 
-**Questions?** Open an issue on GitHub or refer to the code examples in `src/promptscope/api/seed_data.py`.
+**Questions?** Open an issue on GitHub or refer to the code examples in `demo/api/seed_data.py`.

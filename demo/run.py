@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-Main entry point for PromptScope application.
+Main entry point for PromptScope demo application.
 
-Run this script to start the web server.
+Run this script to start the demo web server.
 """
 
 import os
 import sys
 from pathlib import Path
 
-# Add src to path
-src_path = Path(__file__).parent / "src"
-sys.path.insert(0, str(src_path))
+# Add project root to path so we can import both promptscope and demo
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root / "src"))
+sys.path.insert(0, str(project_root))
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -19,7 +20,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import and run server
-from promptscope.api.server import app
+from demo.api.server import app
 
 if __name__ == "__main__":
     import uvicorn
