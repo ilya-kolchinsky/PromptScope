@@ -598,39 +598,7 @@ PromptScope is under active development. The core architecture and API are stabl
 - ❌ Public-facing services (not yet)
 - ❌ Sensitive data handling (not yet)
 
-## Contributing
-
-Contributions are welcome! Areas of interest:
-
-- Persistent storage implementations
-- Additional LLM provider integrations
-- Enhanced ACL policies
-- Performance optimizations
-- Documentation improvements
 
 ## License
 
 Apache License 2.0
-
-## Citation
-
-If you use PromptScope in your research, please cite:
-
-```bibtex
-@software{promptscope2024,
-  title = {PromptScope: A Library for Secure Multi-User LLM Conversations},
-  author = {PromptScope Contributors},
-  year = {2024},
-  url = {https://github.com/yourusername/PromptScope}
-}
-```
-
-## Acknowledgments
-
-Built with Python, FastAPI, and Claude/GPT.
-
-**Core Insight**: Good security architecture reduces novel problems to solved problems.
-
----
-
-**Questions?** Open an issue on GitHub or refer to the [ACL Guide](ACL_GUIDE.md) for access control documentation.
