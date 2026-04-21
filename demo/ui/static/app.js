@@ -172,9 +172,11 @@ async function sendToAssistant(principal, rawContent) {
         if (thinking) thinking.remove();
 
         // Clean the response - remove various prefixes
+        // Only remove principal name if it's clearly a prefix (followed by colon)
+        const responsePrefixPattern = new RegExp(`^${principal}:\\s*`, 'i');
         let cleanResponse = result.response
             .replace(/@assistant/gi, '')
-            .replace(principalPrefix, '')
+            .replace(responsePrefixPattern, '')  // Only remove "Name: " pattern
             .replace(/^\[.*?\]:\s*/, '')  // Remove [Name]: prefix
             .trim();
 
