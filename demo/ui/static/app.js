@@ -173,14 +173,13 @@ async function sendToAssistant(principal, rawContent) {
 
         // Clean the response - remove various prefixes
         // Only remove principal name if it's clearly a prefix (followed by colon)
-        console.log("Raw LLM response:", result.response);
         const responsePrefixPattern = new RegExp(`^${principal}:\\s*`, 'i');
         let cleanResponse = result.response
             .replace(/@assistant/gi, '')
             .replace(responsePrefixPattern, '')  // Only remove "Name: " pattern
             .replace(/^\[.*?\]:\s*/, '')  // Remove [Name]: prefix
-            .trim();
-        console.log("After cleaning:", cleanResponse);
+            .trim()
+            .replace(/^,\s*/, '');
 
         // NOW add both user query (ORIGINAL with @assistant) and assistant response to chat
         await apiCall('/messages', 'POST', {
