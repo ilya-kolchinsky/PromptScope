@@ -1,17 +1,43 @@
 """
-PromptScope: A proof-of-concept library for safe multi-user LLM chats.
+PromptScope: A library for safe multi-user LLM chats.
 
-This library provides the core functionality for implementing secure multi-user
+This library provides functionality for implementing secure multi-user
 LLM interactions with tool-based context retrieval and hierarchical access control.
+
+Quick Start:
+    >>> from promptscope import MultiUserSession
+    >>> session = MultiUserSession()
+    >>> session.post("Alice", "Hello everyone!")
+    >>> response = session.ask("Bob", "What is 2 + 2?")
+    >>> print(response.content)
 
 For a demo application, see the demo/ directory.
 """
 
 __version__ = "0.1.0"
 
-# Export core classes for convenient importing
+# ========== Public API ==========
+# Main entry point
+from .session import MultiUserSession
+
+# Public data types
+from .types import Message, Projection, Response
+
+# Exceptions
+from .exceptions import (
+    PromptScopeError,
+    ConfigurationError,
+    ValidationError,
+    SecurityError,
+    NotFoundError,
+    PermissionError,
+    SerializationError,
+)
+
+# ========== Advanced/Core API ==========
+# For power users who need direct access to internals
 from .core.events import EventLog, MessagePosted, MessageEdited, MessageDeleted
-from .core.conversation import ConversationState, Message
+from .core.conversation import ConversationState
 from .core.projection import ConversationProjector, ProjectedView
 from .core.prompt_builder import PromptBuilder
 from .core.retrieval_tools import ConversationTools
@@ -27,6 +53,22 @@ from .core.acl import (
 )
 
 __all__ = [
+    # ===== Public API (most users should use these) =====
+    # Main class
+    "MultiUserSession",
+    # Data types
+    "Message",
+    "Projection",
+    "Response",
+    # Exceptions
+    "PromptScopeError",
+    "ConfigurationError",
+    "ValidationError",
+    "SecurityError",
+    "NotFoundError",
+    "PermissionError",
+    "SerializationError",
+    # ===== Advanced/Core API (for power users) =====
     # Events
     "EventLog",
     "MessagePosted",
@@ -34,7 +76,6 @@ __all__ = [
     "MessageDeleted",
     # Conversation
     "ConversationState",
-    "Message",
     # Projection
     "ConversationProjector",
     "ProjectedView",

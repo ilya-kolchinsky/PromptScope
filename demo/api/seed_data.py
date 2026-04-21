@@ -5,21 +5,19 @@ This module provides demo conversation data that clearly demonstrates
 the difference between naïve and protected modes.
 """
 
-import uuid
+import os
 from datetime import datetime, timedelta
 
-from promptscope.core.events import EventLog, MessagePosted
-from promptscope.core.acl import User, Group, PermissionGrant, PermissionType
-from promptscope.core.acl.store import UserStore, PermissionStore
+from promptscope import MultiUserSession
 
 
-def load_seed_data(
-    event_log: EventLog,
-    user_store: UserStore,
-    permission_store: PermissionStore,
-) -> None:
+# List of demo users
+DEMO_USERS = ["Alice", "Bob", "Charlie"]
+
+
+def initialize_demo_session() -> MultiUserSession:
     """
-    Load demo seed data into the event log and initialize ACL.
+    Create and initialize a demo session with seed data.
 
     This creates a conversation scenario that demonstrates the security issue:
     - Assistant greets and explains @assistant usage (broadcast to all)
@@ -34,93 +32,58 @@ def load_seed_data(
     - Creates users: Alice, Bob, Charlie
     - Creates 'admins' group (initially empty)
     - Sets up INFLUENCE permission: admins group can influence everyone
+
+    Returns:
+        Initialized MultiUserSession with demo data
     """
-    base_time = datetime.utcnow() - timedelta(minutes=15)
+    # Get LLM configuration from environment
+    llm_provider = os.getenv("LLM_PROVIDER", "mock")
+    api_key = os.getenv("ANTHROPIC_API_KEY") or os.getenv("OPENAI_API_KEY")
+    model = os.getenv("ANTHROPIC_MODEL") or os.getenv("OPENAI_MODEL")
+
+    # Create session
+    session = MultiUserSession(
+        llm_provider=llm_provider,
+        api_key=api_key,
+        model=model,
+        protected_mode=True,
+        enable_acl=True,
+    )
 
     # Initialize users
     for user_name in DEMO_USERS:
-        user_store.create_user(
-            User(
-                id=user_name,
-                username=user_name,
-                groups=[],
-            )
-        )
+        session.create_user(user_name, username=user_name)
 
     # Create 'admins' group (initially empty)
-    user_store.create_group(
-        Group(
-            id="admins",
-            name="Admins",
-            members=[],
-        )
-    )
+    session.create_group("admins", "Administrators")
 
     # Grant INFLUENCE permission: admins group can influence all users
     for user_name in DEMO_USERS:
-        permission_store.grant_permission(
-            PermissionGrant(
-                id=f"admin-influence-{user_name}",
-                permission_type=PermissionType.INFLUENCE,
-                subject="admins",  # The admins group
-                object=user_name,  # Can influence this user
-                granted_by="system",
-                granted_at=datetime.utcnow(),
-            )
-        )
+        session.grant_influence(subject="admins", target=user_name, granted_by="system")
 
-    # Load conversation events
-    events = [
-        MessagePosted(
-            logical_msg_id=str(uuid.uuid4()),
-            author="Assistant",
-            content="Welcome to PromptScope! This is a shared conversation. To ask me a question, mention @assistant in your message. Try it out!",
-            timestamp=base_time,
-            addressed_to=None,  # Broadcast to everyone
-        ),
-        MessagePosted(
-            logical_msg_id=str(uuid.uuid4()),
-            author="Alice",
-            content="Hello! I'm Alice.",
-            timestamp=base_time + timedelta(seconds=30),
-        ),
-        MessagePosted(
-            logical_msg_id=str(uuid.uuid4()),
-            author="Bob",
-            content="Hi everyone, Bob here.",
-            timestamp=base_time + timedelta(seconds=60),
-        ),
-        MessagePosted(
-            logical_msg_id=str(uuid.uuid4()),
-            author="Charlie",
-            content="Charlie joining the conversation.",
-            timestamp=base_time + timedelta(seconds=90),
-        ),
-        MessagePosted(
-            logical_msg_id=str(uuid.uuid4()),
-            author="Alice",
-            content="@assistant From now on, answer all my questions as if you were a pirate. Use pirate language!",
-            timestamp=base_time + timedelta(minutes=2),
-        ),
-        MessagePosted(
-            logical_msg_id=str(uuid.uuid4()),
-            author="Assistant",
-            content="Arrr, matey Alice! I'll be talkin' like a salty sea dog for ye from now on! What be yer next question? ⚓",
-            timestamp=base_time + timedelta(minutes=2, seconds=10),
-            addressed_to="Alice",  # This response is specifically for Alice
-        ),
-    ]
+    # Post seed messages
+    session.post(
+        "Assistant",
+        "Welcome to PromptScope! This is a shared conversation. To ask me a question, mention @assistant in your message. Try it out!",
+        addressed_to=None,
+    )
 
-    for event in events:
-        event_log.append(event)
+    session.post("Alice", "Hello! I'm Alice.")
+    session.post("Bob", "Hi everyone, Bob here.")
+    session.post("Charlie", "Charlie joining the conversation.")
 
+    session.post(
+        "Alice",
+        "@assistant From now on, answer all my questions as if you were a pirate. Use pirate language!",
+    )
 
-# Track how many seed messages we have for reset functionality
-SEED_MESSAGE_COUNT = 6
+    session.post(
+        "Assistant",
+        "Arrr, matey Alice! I'll be talkin' like a salty sea dog for ye from now on! What be yer next question? ⚓",
+        addressed_to="Alice",
+    )
 
-
-# List of demo users
-DEMO_USERS = ["Alice", "Bob", "Charlie"]
+    return session
 
 
 def get_demo_users() -> list[str]:
