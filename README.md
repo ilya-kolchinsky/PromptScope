@@ -7,6 +7,34 @@ PromptScope solves the **multi-user context pollution problem** in shared LLM co
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
+## ⚠️ Status: Work in Progress
+
+**PromptScope is currently under active development and is NOT production-ready.**
+
+While the library has a clean API and working core functionality, critical production features are still missing:
+
+- ❌ **No persistent storage** - Everything is in-memory only
+- ❌ **No authentication** - User identity is based on strings
+- ❌ **No async support** - `ask_async()` is a stub
+- ❌ **No input sanitization** - Retrieved content is not sanitized
+- ❌ **No comprehensive audit logging** - Beyond basic event log
+- ❌ **No rate limiting** - No protection against abuse
+- ❌ **No battle-testing** - Not tested in production environments
+
+**Use PromptScope for:**
+- ✅ Research and experimentation
+- ✅ Prototyping multi-user LLM applications
+- ✅ Understanding multi-user context management
+- ✅ Local development and testing
+
+**Do NOT use for:**
+- ❌ Production applications handling sensitive data
+- ❌ Public-facing services
+- ❌ Applications requiring high availability
+- ❌ Scenarios requiring regulatory compliance
+
+We are actively working on adding production features. See [Development Status](#development-status) for roadmap.
+
 ## Features
 
 - 🛡️ **Context Protection**: Prevents users from inadvertently influencing each other's LLM responses
@@ -521,29 +549,54 @@ results = tools.search_conversation(
 
 ## Development Status
 
-PromptScope is actively developed and suitable for:
+**Current Status: Alpha / Work in Progress**
 
-✅ **Production use** for multi-user LLM context management  
-✅ **Research** on multi-user LLM security  
-✅ **Integration** into existing applications
+PromptScope is under active development. The core architecture and API are stable, but critical production features are missing.
 
-### Current Features
+### ✅ Implemented Features
 
-- [x] Tool-based retrieval
-- [x] Multi-provider LLM support
-- [x] Hierarchical access control
-- [x] Event sourcing and serialization
-- [x] Clean public API
+- [x] Tool-based retrieval with three retrieval tools
+- [x] Multi-provider LLM support (Anthropic, OpenAI, vLLM, Ollama, Mock)
+- [x] Hierarchical access control (ACL) with groups and permissions
+- [x] Event sourcing with append-only log
+- [x] Serialization (save/load session state)
+- [x] Clean public API with `MultiUserSession`
+- [x] Protected vs. Naïve mode
+- [x] Principal-based projection
+- [x] Interactive demo application
 
-### Planned Features
+### ⚠️ Missing Critical Features (Production Blockers)
 
-- [ ] Async LLM requests (`ask_async()`)
-- [ ] Persistent storage backends (PostgreSQL, Redis)
-- [ ] User authentication integration
-- [ ] Enhanced input sanitization for retrieved content
-- [ ] Audit logging API
-- [ ] Time-based and topic-scoped permissions
-- [ ] Rate limiting
+- [ ] **Persistent storage** - Currently in-memory only, data lost on restart
+- [ ] **Authentication system** - No user identity verification
+- [ ] **Async LLM requests** - `ask_async()` is a documented stub
+- [ ] **Input sanitization** - Retrieved content not sanitized against injection
+- [ ] **Comprehensive audit logging** - No structured logging API beyond event log
+- [ ] **Rate limiting** - No protection against abuse
+- [ ] **Error recovery** - No retry logic or graceful degradation
+- [ ] **Production deployment guide** - No ops documentation
+- [ ] **Security hardening** - No penetration testing or security audit
+- [ ] **Performance optimization** - No caching, connection pooling, etc.
+
+### 🚧 Planned Features (Post-Production)
+
+- [ ] Time-based permissions (temporary influence)
+- [ ] Topic-scoped permissions (influence only on certain topics)
+- [ ] Message threading and conversation branching
+- [ ] Multiple concurrent sessions
+- [ ] WebSocket support for real-time updates
+- [ ] Enhanced retrieval with semantic search
+- [ ] Policy DSL for complex permission rules
+
+### Suitable For
+
+- ✅ Research and experimentation
+- ✅ Prototyping and proof-of-concepts
+- ✅ Educational purposes
+- ✅ Local development
+- ❌ Production applications (not yet)
+- ❌ Public-facing services (not yet)
+- ❌ Sensitive data handling (not yet)
 
 ## Contributing
 
