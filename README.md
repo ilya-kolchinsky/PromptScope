@@ -7,6 +7,10 @@ PromptScope solves the **multi-user context pollution problem** in shared LLM co
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
+## Demo
+
+https://private-user-images.githubusercontent.com/58424190/579956032-23371048-4924-4972-839b-03f991d35377.mp4?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NzY0MzU0NjIsIm5iZiI6MTc3NjQzNTE2MiwicGF0aCI6Ii81ODQyNDE5MC81Nzk5NTYwMzItMjMzNzEwNDgtNDkyNC00OTcyLTgzOWItMDNmOTkxZDM1Mzc3Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNjA0MTclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjYwNDE3VDE0MTI0MlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWViMDI0ODA2Y2RhMWE3OWI5NDFlNDBjNGJhYzQzODQzNjkwM2NkZGYyY2Q3NmFlZDNlM2QzMDhhZjNiY2Y5NjEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JnJlc3BvbnNlLWNvbnRlbnQtdHlwZT12aWRlbyUyRm1wNCJ9.CN4XLpHeUZZiFGAEdj3XpAZGQYb1ccxIuwfw2e7yxzA
+
 ## ⚠️ Status: Work in Progress
 
 **PromptScope is currently under active development and is NOT production-ready.**
